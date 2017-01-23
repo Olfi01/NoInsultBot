@@ -53,6 +53,11 @@ namespace ConsoleApplication1
 
         private static void handleMessage(string txt, Message msg, Update u)
         {
+
+            bool globalAdmin = false;
+            foreach (long l in adminIds) if (l == msg.From.Id) globalAdmin = true;
+
+
             string lowertxt = txt.ToLower();
 
             switch (lowertxt)
@@ -82,7 +87,7 @@ namespace ConsoleApplication1
 
                 case "/blacklist":
                 case "/blacklist" + botUsername:
-                    foreach (long l in adminIds) if (l == msg.From.Id)
+                    if(globalAdmin)
                     {
                         string blacklistMessage = "";
                         blacklistMessage += "*Current Blacklist:*\n\n";
@@ -134,31 +139,35 @@ namespace ConsoleApplication1
 
                 case "/kick":
                 case "/kick" + botUsername:
-                    foreach (long l in adminIds) if (l == msg.From.Id)
+                    if (globalAdmin)
                     {
-                            if (msg.ReplyToMessage != null)
-                            {
-                                kickUser(msg.ReplyToMessage);
-                                sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
-                            }
-                            else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
+                        if (msg.ReplyToMessage != null)
+                        {
+                            kickUser(msg.ReplyToMessage);
+                            sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
+                        }
+                        else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
                     }
-                break;
+                    else globalAdminsOnly(msg);
+
+                    break;
 
 
                 case "/callalex":
-                    foreach (long l in adminIds) if (l == msg.From.Id)
-                        {
-                            sendMessage("Hey Alexander! Du wurdest gebeten, die Gruppe @noinsultbottestinggroup wieder zu joinen!", 283886123);
-                            sendMessage("Alexander was called to rejoin the testing group in private", msg.Chat.Id);
-                        }
+                    if (globalAdmin)
+                    {
+                        sendMessage("Hey Alexander! Du wurdest gebeten, die Gruppe @noinsultbottestinggroup wieder zu joinen!", 283886123);
+                        sendMessage("Alexander was called to rejoin the testing group in private", msg.Chat.Id);
+                    }
+                    else globalAdminsOnly(msg);
+
                     break;
 
             }
 
             if ((lowertxt.StartsWith("/addinsult ") && txt.Length > 11) || (lowertxt.StartsWith("/addinsult" + botUsername) && txt.Length > (botUsername.Length + 11)))
             {
-                foreach(long l in adminIds) if (l == msg.From.Id)
+                if(globalAdmin)
                 {
                     if (txt.Contains("\n"))
                     {
@@ -186,7 +195,7 @@ namespace ConsoleApplication1
 
             if (lowertxt.StartsWith("!leavegroup") && txt.Length > 11)
             {
-                foreach (long l in adminIds) if (l == msg.From.Id)
+                if (globalAdmin)
                 {
                     string[] splittedtxt = txt.Split(' ');
                     string append = "leaveChat?chat_id=";
@@ -201,6 +210,7 @@ namespace ConsoleApplication1
                         sendMessage("Error occured at errorsource 1!", msg.Chat.Id);
                     }
                 }
+                else globalAdminsOnly(msg);
 
             }
 
