@@ -18,7 +18,7 @@ namespace ConsoleApplication1
         private const long ludwigsId = 295152997;
         private static readonly long[] adminIds = { ludwigsId, 283886123, 267376056 };
         //                                           Ludwig   Alexander    Florian
-        private static readonly string projectPath = "C:\\Users\\Ludwig\\Documents\\Visual Studio 2015\\Projects\\NoInsultBot\\NoInsultBot";
+        private static readonly string projectPath = "C:\\Users\\Ludwig\\Documents\\Visual Studio 2015\\Projects\\NoInsultBot\\NoInsultBot\\";
 
         private static bool running = true;
         private static long lastUpdate = 0;
@@ -32,6 +32,7 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             running = true;
+            readToken();
             readSchimpfwortFile();
 
             Console.WriteLine("Bot started");
