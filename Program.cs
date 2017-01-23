@@ -132,12 +132,15 @@ namespace ConsoleApplication1
 
                 case "/kick":
                 case "/kick" + botUsername:
-                    if (msg.ReplyToMessage != null)
+                    foreach (long l in adminIds) if (l == msg.From.Id)
                     {
-                        kickUser(msg.ReplyToMessage);
-                        sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
+                        if (msg.ReplyToMessage != null)
+                        {
+                            kickUser(msg.ReplyToMessage);
+                            sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
+                        }
+                        else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
                     }
-                    else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
                     break;
 
                 case "/callalex":
