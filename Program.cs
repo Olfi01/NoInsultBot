@@ -16,9 +16,9 @@ namespace ConsoleApplication1
         private const string botUsername = "@noinsultbot";
         private const long testgroupid = -1001084458410;
         private const long ludwigsId = 295152997;
-        private static readonly long[] adminIds = { ludwigsId, 283886123 , 267376056 };
-//                                                    Ludwig   Alexander    Florian
-        private static readonly string projectPath = "C:\\Users\\Ludwig\\Documents\\Visual Studio 2015\\Projects\\ConsoleApplication1\\ConsoleApplication1\\";
+        private static readonly long[] adminIds = { ludwigsId, 283886123, 267376056 };
+        //                                           Ludwig   Alexander    Florian
+        private static readonly string projectPath = "C:\\Users\\Ludwig\\Documents\\Visual Studio 2015\\Projects\\NoInsultBot\\NoInsultBot";
 
         private static bool running = true;
         private static long lastUpdate = 0;
@@ -66,21 +66,21 @@ namespace ConsoleApplication1
                     break;
 
 
-/*                    case "!stopbot":
-                        if (msg.From.Id == ludwigsId)
-                        {
-                            lastUpdate = u.Id;
-                            getUpdates();
-                            sendMessage("Bot was stopped by global admin!", msg.Chat.Id, msg, null);
-                            running = false;
-                        }
-                        else ludwigOnly(msg);
-                        break;
-*/
+                /*                    case "!stopbot":
+                                        if (msg.From.Id == ludwigsId)
+                                        {
+                                            lastUpdate = u.Id;
+                                            getUpdates();
+                                            sendMessage("Bot was stopped by global admin!", msg.Chat.Id, msg, null);
+                                            running = false;
+                                        }
+                                        else ludwigOnly(msg);
+                                        break;
+                */
 
                 case "/blacklist":
                 case "/blacklist" + botUsername:
-                    if (Array.IndexOf(adminIds, msg.From.Id) > -1)
+                    foreach (long l in adminIds) if (l == msg.From.Id)
                     {
                         string blacklistMessage = "";
                         blacklistMessage += "*Current Blacklist:*\n\n";
@@ -134,28 +134,29 @@ namespace ConsoleApplication1
                 case "/kick" + botUsername:
                     foreach (long l in adminIds) if (l == msg.From.Id)
                     {
-                        if (msg.ReplyToMessage != null)
-                        {
-                            kickUser(msg.ReplyToMessage);
-                            sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
-                        }
-                        else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
+                            if (msg.ReplyToMessage != null)
+                            {
+                                kickUser(msg.ReplyToMessage);
+                                sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
+                            }
+                            else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
                     }
-                    break;
+                break;
+
 
                 case "/callalex":
                     foreach (long l in adminIds) if (l == msg.From.Id)
-                    {
-                        sendMessage("Hey Alexander! Du wurdest gebeten, die Gruppe @noinsultbottestinggroup wieder zu joinen!", 283886123);
-                        sendMessage("Alexander was called to rejoin the testing group in private", msg.Chat.Id);
-                    }
+                        {
+                            sendMessage("Hey Alexander! Du wurdest gebeten, die Gruppe @noinsultbottestinggroup wieder zu joinen!", 283886123);
+                            sendMessage("Alexander was called to rejoin the testing group in private", msg.Chat.Id);
+                        }
                     break;
 
             }
 
             if ((lowertxt.StartsWith("/addinsult ") && txt.Length > 11) || (lowertxt.StartsWith("/addinsult" + botUsername) && txt.Length > (botUsername.Length + 11)))
             {
-                if (Array.IndexOf(adminIds, msg.From.Id) > -1)
+                foreach(long l in adminIds) if (l == msg.From.Id)
                 {
                     if (txt.Contains("\n"))
                     {
@@ -183,24 +184,27 @@ namespace ConsoleApplication1
 
             if (lowertxt.StartsWith("!leavegroup") && txt.Length > 11)
             {
-                string[] splittedtxt = txt.Split(' ');
-                string append = "leaveChat?chat_id=";
-                append += splittedtxt[1];
-                try
+                foreach (long l in adminIds) if (l == msg.From.Id)
                 {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-                    request.GetResponse(); //errorsource 1
-                }
-                catch
-                {
-                    sendMessage("Error occured at errorsource 1!", msg.Chat.Id);
+                    string[] splittedtxt = txt.Split(' ');
+                    string append = "leaveChat?chat_id=";
+                    append += splittedtxt[1];
+                    try
+                    {
+                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                        request.GetResponse(); //errorsource 1
+                    }
+                    catch
+                    {
+                        sendMessage("Error occured at errorsource 1!", msg.Chat.Id);
+                    }
                 }
 
             }
 
             foreach (string s in schimpfworte)
             {
-                if(lowertxt.Contains(s))
+                if (lowertxt.Contains(s))
                 {
                     if (UserInGroup(msg))
                     {
@@ -233,7 +237,7 @@ namespace ConsoleApplication1
 
 
 
-        static void kickUser (Message msg)
+        static void kickUser(Message msg)
         {
             bool publicsupergroup = false;
             if (msg.Chat.Username != null) publicsupergroup = true;
@@ -323,7 +327,7 @@ namespace ConsoleApplication1
                 sendMessage("Error occured in the getUpdates function! Exception:\n\n" + e, testgroupid);
                 return null;
             }
-            
+
         }
 
 
@@ -405,6 +409,19 @@ namespace ConsoleApplication1
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        private static void readToken()
+        {
+            using (StreamReader sr = new StreamReader(projectPath + "Token.txt", System.Text.Encoding.UTF8))
+            {
+                Console.WriteLine("Loading Token. . .");
+
+                botToken = sr.ReadLine();
+
+                Console.WriteLine("");
+                Console.WriteLine("Token loaded.");
             }
         }
 
