@@ -327,7 +327,7 @@ namespace ConsoleApplication1
             catch (Exception e)
             {
                 sendMessage("Error occured in the getUpdates function! Exception:\n\n" + e, testgroupid);
-                return null;
+                throw e;
             }
 
         }
