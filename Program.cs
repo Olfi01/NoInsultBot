@@ -133,15 +133,18 @@ namespace ConsoleApplication1
 
                 case "/kickme":
                 case "/kickme" + botUsername:
-                    kickUser(msg);
-                    sendMessage("Kicked User `" + msg.From.FirstName + "`!", msg.Chat.Id, msg, "Markdown");
+                    if (!Adminmessage(msg))
+                    {
+                        kickUser(msg);
+                        sendMessage("Kicked User `" + msg.From.FirstName + "`!", msg.Chat.Id, msg, "Markdown");
+                    }
                     break;
 
                 case "/kick":
                 case "/kick" + botUsername:
                     if (globalAdmin)
                     {
-                        if (msg.ReplyToMessage != null)
+                        if (msg.ReplyToMessage != null && !Adminmessage(msg.ReplyToMessage))
                         {
                             kickUser(msg.ReplyToMessage);
                             sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
@@ -217,7 +220,7 @@ namespace ConsoleApplication1
 
             }
 
-            if (!insultAdded)
+            if (!insultAdded && !Adminmessage(msg))
             {
                 foreach (string s in schimpfworte)
                 {
@@ -251,6 +254,27 @@ namespace ConsoleApplication1
             if (cm.Status.ToString() == "Creator" || cm.Status.ToString() == "Administrator" || cm.Status.ToString() == "Member") isInGroup = true;
 
             return isInGroup;
+        }
+
+        static bool Adminmessage(Message msg)
+        {
+            bool isadminmessage = false;
+
+            string append = "getChatAdministrators?chat_id=" + msg.Chat.Id;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream resStream = response.GetResponseStream();
+
+            ChatMember[] admins = Decode<ChatMember[]>(resStream);
+
+            foreach (ChatMember adm in admins) if (msg.From.Id == adm.User.Id)
+            {
+                    isadminmessage = true;
+                    break;
+            }
+            
+            return isadminmessage;
         }
 
 
