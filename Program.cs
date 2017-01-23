@@ -11,8 +11,8 @@ namespace ConsoleApplication1
     class Program
     {
 
-        private static string botToken = ""; // I don't publish my token :P
-        private static string botUrl = "https://api.telegram.org/bot" + botToken + "/";
+        private static string botToken; // I don't publish my token :P
+        private static string botUrl;
         private const string botUsername = "@noinsultbot";
         private const long testgroupid = -1001084458410;
         private const long ludwigsId = 295152997;
@@ -33,6 +33,7 @@ namespace ConsoleApplication1
         {
             running = true;
             readToken();
+            botUrl = "https://api.telegram.org/bot" + botToken + "/";
             readSchimpfwortFile();
 
             Console.WriteLine("Bot started");
