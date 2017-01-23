@@ -165,8 +165,11 @@ namespace ConsoleApplication1
 
             }
 
+            bool insultAdded = false;
+
             if ((lowertxt.StartsWith("/addinsult ") && txt.Length > 11) || (lowertxt.StartsWith("/addinsult" + botUsername) && txt.Length > (botUsername.Length + 11)))
             {
+                insultAdded = true;
                 if(globalAdmin)
                 {
                     if (txt.Contains("\n"))
@@ -214,18 +217,21 @@ namespace ConsoleApplication1
 
             }
 
-            foreach (string s in schimpfworte)
+            if (!insultAdded)
             {
-                if (lowertxt.Contains(s))
+                foreach (string s in schimpfworte)
                 {
-                    if (UserInGroup(msg))
+                    if (lowertxt.Contains(s))
                     {
-                        kickUser(msg);
-                        sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
-                        lastUpdate = u.Id;
-                        getUpdates();
+                        if (UserInGroup(msg))
+                        {
+                            kickUser(msg);
+                            sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
+                            lastUpdate = u.Id;
+                            getUpdates();
+                        }
+                        else sendMessage("Tried to kick `" + msg.From.FirstName + "` because of this message, but `" + msg.From.FirstName + "` doesn't seem to be a member of this group (anymore)!", msg.Chat.Id, msg, "Markdown");
                     }
-                    else sendMessage("Tried to kick `" + msg.From.FirstName + "` because of this message, but `" + msg.From.FirstName + "` doesn't seem to be a member of this group (anymore)!", msg.Chat.Id, msg, "Markdown");
                 }
             }
         }
