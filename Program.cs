@@ -25,9 +25,14 @@ namespace ConsoleApplication1
         private static long newUpdate = 0;
 
         private static ArrayList schimpfworte = new ArrayList();
-        private static string insult;
+
 
         private static Update[] updates;
+
+
+        private static string PRIVarguments; //These variables are only used in single functions. No need to be used for rest of program.
+        private static string PRIVinsult;
+        private static bool PRIVinsultadded;
 
         static void Main(string[] args)
         {
@@ -53,14 +58,27 @@ namespace ConsoleApplication1
 
         private static void handleMessage(string txt, Message msg, Update u)
         {
+            PRIVinsultadded = false;
 
             bool globalAdmin = false;
             foreach (long l in adminIds) if (l == msg.From.Id) globalAdmin = true;
 
 
             string lowertxt = txt.ToLower();
+            string[] splittedlowertxt = lowertxt.Split(' ');
+            int counter = 0;
+            foreach(string s in splittedlowertxt)
+            {
+                if(counter != 0)
+                {
+                    PRIVarguments += s;
+                    PRIVarguments += " ";
+                }
+                counter++;
+            }
 
-            switch (lowertxt)
+
+            switch (splittedlowertxt[0])
             {
                 case "/feedback":
                 case "/feedback" + botUsername:
@@ -87,7 +105,7 @@ namespace ConsoleApplication1
 
                 case "/blacklist":
                 case "/blacklist" + botUsername:
-                    if(globalAdmin)
+                    if (globalAdmin)
                     {
                         string blacklistMessage = "";
                         blacklistMessage += "*Current Blacklist:*\n\n";
@@ -171,61 +189,72 @@ namespace ConsoleApplication1
 
                     break;
 
-            }
 
-            bool insultAdded = false;
+                case "/addinsult":
+                case "/addinsult" + botUsername:
 
-            if ((lowertxt.StartsWith("/addinsult ") && txt.Length > 11) || (lowertxt.StartsWith("/addinsult" + botUsername) && txt.Length > (botUsername.Length + 11)))
-            {
-                insultAdded = true;
-                if(globalAdmin)
-                {
-                    if (txt.Contains("\n"))
+                    if (globalAdmin)
                     {
-                        sendMessage("Error: The insult may not contain multiple lines!", msg.Chat.Id, msg, null);
-                    }
-                    else
-                    {
-
-                        string[] insultarray = txt.Split(' ');
-                        insult = "";
-                        for (int i = 1; i < insultarray.Length; i++)
+                        if (PRIVarguments != "")
                         {
-                            insult += insultarray[i];
-                            if (i == insultarray.Length - 1) break;
-                            insult += " ";
+                            if (txt.Contains("\n"))
+                            {
+                                sendMessage("Error: The insult may not contain multiple lines!", msg.Chat.Id, msg, null);
+                            }
+                            else
+                            {
+
+                                string[] insultarray = txt.Split(' ');
+                                PRIVinsult = "";
+                                for (int i = 1; i < insultarray.Length; i++)
+                                {
+                                    PRIVinsult += insultarray[i];
+                                    if (i == insultarray.Length - 1) break;
+                                    PRIVinsult += " ";
+                                }
+                                PRIVinsult = PRIVinsult.ToLower();
+                                schimpfworte.Add(PRIVinsult.Trim());
+                                sendMessage("Following insult was added:\n\n*" + PRIVinsult + "*", msg.Chat.Id, msg, "Markdown");
+                                Console.WriteLine("Following insult was added: " + PRIVinsult);
+
+                                PRIVinsultadded = true;
+                            }
                         }
-                        insult = insult.ToLower();
-                        schimpfworte.Add(insult.Trim());
-                        sendMessage("Following insult was added:\n\n*" + insult + "*", msg.Chat.Id, msg, "Markdown");
-                        Console.WriteLine("Following insult was added: " + insult);
+                        else sendMessage("Please add the insult you wish to add after the command!", msg.Chat.Id, msg);
                     }
-                }
-                else globalAdminsOnly(msg);
+                    else globalAdminsOnly(msg);
+
+                    break;
+
+
+                case "!leavegroup":
+
+                    if (globalAdmin)
+                    {
+                        if (PRIVarguments != "")
+                        {
+                            string[] splittedtxt = txt.Split(' ');
+                            string append = "leaveChat?chat_id=";
+                            append += splittedtxt[1];
+                            try
+                            {
+                                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                                request.GetResponse(); //errorsource 1
+                            }
+                            catch
+                            {
+                                sendMessage("Error occured at errorsource 1!", msg.Chat.Id);
+                            }
+                        }
+                        else sendMessage("Please add the ID of the chat the bot should leave after the command!", msg.Chat.Id);
+
+                    }
+                    else globalAdminsOnly(msg);
+
+                    break;
             }
 
-            if (lowertxt.StartsWith("!leavegroup") && txt.Length > 11)
-            {
-                if (globalAdmin)
-                {
-                    string[] splittedtxt = txt.Split(' ');
-                    string append = "leaveChat?chat_id=";
-                    append += splittedtxt[1];
-                    try
-                    {
-                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-                        request.GetResponse(); //errorsource 1
-                    }
-                    catch
-                    {
-                        sendMessage("Error occured at errorsource 1!", msg.Chat.Id);
-                    }
-                }
-                else globalAdminsOnly(msg);
-
-            }
-
-            if (!insultAdded && !Adminmessage(msg))
+            if (!PRIVinsultadded && !Adminmessage(msg))
             {
                 foreach (string s in schimpfworte)
                 {
@@ -235,6 +264,7 @@ namespace ConsoleApplication1
                         {
                             kickUser(msg);
                             sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
+
                             lastUpdate = u.Id;
                             getUpdates();
                         }
