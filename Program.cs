@@ -167,7 +167,7 @@ namespace ConsoleApplication1
                         {
                             if (!Adminmessage(msg.ReplyToMessage))
                             {
-                                if (UserInGroup(msg))
+                                if (UserInGroup(msg.ReplyToMessage))
                                 {
                                     kickUser(msg.ReplyToMessage);
                                     sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id, msg);
