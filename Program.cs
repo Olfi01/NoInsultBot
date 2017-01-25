@@ -315,7 +315,7 @@ namespace ConsoleApplication1
                     isadminmessage = true;
                     break;
             }
-            
+
             return isadminmessage;
         }
 
@@ -434,10 +434,9 @@ namespace ConsoleApplication1
                 Stream resStream = response.GetResponseStream();
                 return DecodeRaw<Message>(resStream).Ok;
             }
-            catch
+            catch (Exception e)
             {
-                Console.WriteLine("Error occured at errorsource 4!");
-                return false;
+                throw e;
             }
         }
 
