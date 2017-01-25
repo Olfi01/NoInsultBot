@@ -167,14 +167,21 @@ namespace ConsoleApplication1
                         {
                             if (!Adminmessage(msg.ReplyToMessage))
                             {
-                                kickUser(msg.ReplyToMessage);
-                                sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id);
+                                if (UserInGroup(msg))
+                                {
+                                    kickUser(msg.ReplyToMessage);
+                                    sendMessage(msg.From.FirstName + " kicked " + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "!", msg.Chat.Id, msg);
+                                }
+                                else sendMessage(msg.From.FirstName + " tried to kick `" + msg.ReplyToMessage.From.FirstName + " " + msg.ReplyToMessage.From.LastName + "`, but this user doesn't seem to be in this group anymore!", msg.Chat.Id, msg, "Markdown");
                             }
                             else sendMessage("Tried to kick `" + msg.ReplyToMessage.From.FirstName + "`, but this user is an admin and therefore unkickable!", msg.Chat.Id);
                         }
                         else sendMessage("Please reply to the user you want to kick!", msg.Chat.Id);
                     }
                     else sendMessage("This command is for group admins only! You dont't seem to be an admin, " + msg.From.FirstName + "!", msg.Chat.Id, msg);
+
+                    lastUpdate = u.Id + 1;
+                    getUpdates();
 
                     break;
 
