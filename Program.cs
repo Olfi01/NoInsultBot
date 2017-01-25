@@ -265,7 +265,7 @@ namespace ConsoleApplication1
                             kickUser(msg);
                             sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
 
-                            lastUpdate = u.Id;
+                            lastUpdate = u.Id + 1;
                             getUpdates();
                         }
                         else sendMessage("Tried to kick `" + msg.From.FirstName + "` because of this message, but `" + msg.From.FirstName + "` doesn't seem to be a member of this group (anymore)!", msg.Chat.Id, msg, "Markdown");
