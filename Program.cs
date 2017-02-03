@@ -36,7 +36,6 @@ namespace ConsoleApplication1
 
         static void Main(string[] args)
         {
-            running = true;
             readToken();
             botUrl = "https://api.telegram.org/bot" + botToken + "/";
             readSchimpfwortFile();
@@ -46,14 +45,15 @@ namespace ConsoleApplication1
 
             sendMessage("Bot was started by Ludwig!", testgroupid, null, "Markdown");
 
-            while (running)
+            while (true)
             {
                 Stream resStream = getUpdates();
                 updates = Decode<Update[]>(resStream);
                 handleUpdates(updates: updates);
+                if (running == false) break;
             }
-
-            return;
+            Console.WriteLine("BOT WAS STOPPED! --- BOT WAS STOPPED!");
+            Console.ReadLine();
         }
 
         private static void handleMessage(string txt, Message msg, Update u)
@@ -80,6 +80,20 @@ namespace ConsoleApplication1
 
             switch (splittedlowertxt[0])
             {
+                case "!stopbot":
+                    if (globalAdmin)
+                    {
+                        sendMessage("Bot is being stopped...", msg.Chat.Id, msg);
+
+                        lastUpdate = u.Id;
+                        getUpdates();
+
+                        running = false;
+                        return;
+                    }
+                    else globalAdminsOnly(msg);
+                    break;
+
                 case "/feedback":
                 case "/feedback" + botUsername:
                     sendMessage("This is a bot by Ludwig. If you want to provide feedback, join the [test group](https://telegram.me/noinsultbottestinggroup)", msg.Chat.Id, msg, "Markdown", true);
@@ -90,18 +104,6 @@ namespace ConsoleApplication1
                     sendMessage("The Chat ID of the current chat is:" + msg.Chat.Id, msg.Chat.Id);
                     break;
 
-
-                /*                    case "!stopbot":
-                                        if (msg.From.Id == ludwigsId)
-                                        {
-                                            lastUpdate = u.Id;
-                                            getUpdates();
-                                            sendMessage("Bot was stopped by global admin!", msg.Chat.Id, msg, null);
-                                            running = false;
-                                        }
-                                        else ludwigOnly(msg);
-                                        break;
-                */
 
                 case "/blacklist":
                 case "/blacklist" + botUsername:
