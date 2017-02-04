@@ -158,8 +158,13 @@ namespace ConsoleApplication1
                         string groupid = splittedlowertxt[2];
                         string grouptype = splittedlowertxt[3];
 
-                        kickUser(uid, groupid, grouptype);
-                        sendMessage("User kicked!", msg.Chat.Id, msg);
+                        if (!isAdmin(uid, msg.Chat.Id))
+                        {
+                            kickUser(uid, groupid, grouptype);
+                            sendMessage("User kicked!", msg.Chat.Id, msg);
+                        }
+                        else sendMessage("Tried to kick the User " + uid + ", but this User is an admin and therefore unkickable!", msg.Chat.Id, msg);
+                            
                     }
                     else globalAdminsOnly(msg);
 
@@ -349,6 +354,27 @@ namespace ConsoleApplication1
             }
 
             return isadminmessage;
+        }
+
+        static bool isAdmin(long uid, long groupid)
+        {
+            bool isadmin = false;
+
+            string append = "getChatAdministrators?chat_id=" + groupid;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream resStream = response.GetResponseStream();
+
+            ChatMember[] admins = Decode<ChatMember[]>(resStream);
+
+            foreach (ChatMember adm in admins) if (uid == adm.User.Id)
+                {
+                    isadmin = true;
+                    break;
+                }
+
+            return isadmin;
         }
 
 
