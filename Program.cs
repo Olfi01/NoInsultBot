@@ -371,6 +371,46 @@ namespace ConsoleApplication1
             }
         }
 
+        static void kickUser(long uid, string groupid, string grouptype = "Group")
+        {
+            try
+            {
+                bool supergroup = false;
+                if (grouptype.ToLower() == "supergroup") supergroup = true;
+
+                string append = "kickChatMember?chat_id=";
+
+                append += groupid;
+
+                append += "&user_id=";
+
+                append += uid;
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                request.GetResponse();
+
+                if (supergroup)
+                {
+                    append = "unbanChatMember?chat_id=";
+
+                    append += groupid;
+
+                    append += "&user_id=";
+
+                    append += uid;
+
+                    request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                    request.GetResponse();
+
+                }
+            }
+            catch(Exception e)
+            {
+                sendMessage("Fehler trat auf in der Funktion kickUser(uid, groupid, grouptype)! Exception:\n\n" + e, testgroupid);
+            }
+        }
+
+
         static void globalAdminsOnly(Message msg)
         {
             sendMessage("Can't you read? GLOBAL ADMINS ONLY! You are not a global admin, *" + msg.From.FirstName + "*!", msg.Chat.Id, msg, "Markdown");
