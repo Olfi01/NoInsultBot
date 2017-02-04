@@ -376,14 +376,11 @@ namespace ConsoleApplication1
 
                 if (supergroup)
                 {
-                    append = "unbanChatMember?chat_id=";
-                    if (publicsupergroup) append += "@" + msg.Chat.Username;
-                    else append += msg.Chat.Id;
+                    string groupid;
+                    if (publicsupergroup) groupid = "@" + msg.Chat.Username;
+                    else groupid = Convert.ToString(msg.Chat.Id);
 
-                    append += "&user_id=" + msg.From.Id;
-
-                    request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-                    request.GetResponse();
+                    unbanUser(msg.From.Id, groupid);
 
                 }
 
@@ -412,25 +409,29 @@ namespace ConsoleApplication1
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
                 request.GetResponse();
 
-                if (supergroup)
-                {
-                    append = "unbanChatMember?chat_id=";
-
-                    append += groupid;
-
-                    append += "&user_id=";
-
-                    append += uid;
-
-                    request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-                    request.GetResponse();
-
-                }
+                if (supergroup) unbanUser(uid, groupid);
+                
             }
             catch(Exception e)
             {
                 sendMessage("Fehler trat auf in der Funktion kickUser(uid, groupid, grouptype)! Exception:\n\n" + e, testgroupid);
             }
+        }
+
+        static void unbanUser(long uid, string groupid)
+        {
+
+            string append = "unbanChatMember?chat_id=";
+
+            append += groupid;
+
+            append += "&user_id=";
+
+            append += uid;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+            request.GetResponse();
+
         }
 
 
