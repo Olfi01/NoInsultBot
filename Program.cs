@@ -178,7 +178,7 @@ namespace ConsoleApplication1
                         name = msg.From.FirstName;
                     }
 
-                    sendMessage("Die User ID von " + name + " ist " + userid, msg.Chat.Id, msg);
+                    sendMessage("The User ID of " + name + " is " + userid, msg.Chat.Id, msg);
                     break;
 
                 case "/kickme":
