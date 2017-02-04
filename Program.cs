@@ -151,6 +151,21 @@ namespace ConsoleApplication1
                     sendMessage(echotext, msg.Chat.Id, null, "Markdown", true);
                     break;
 
+                case "/uid":
+                    string userid, name;
+                    if (msg.ReplyToMessage != null)
+                    {
+                        userid = Convert.ToString(msg.ReplyToMessage.From.Id);
+                        name = msg.ReplyToMessage.From.FirstName;
+                    }
+                    else
+                    {
+                        userid = Convert.ToString(msg.From.Id);
+                        name = msg.From.FirstName;
+                    }
+
+                    sendMessage("Die User ID von " + name + " ist " + userid, msg.Chat.Id, msg);
+                    break;
 
                 case "/kickme":
                 case "/kickme" + botUsername:
