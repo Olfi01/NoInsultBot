@@ -306,7 +306,7 @@ namespace ConsoleApplication1
                     {
                         if (UserInGroup(msg))
                         {
-                            kickUser(msg);
+                            kickUser(msg);//add thread here
                             sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
 
                             lastUpdate = u.Id;
@@ -402,6 +402,7 @@ namespace ConsoleApplication1
 
                 if (supergroup)
                 {
+                    Thread.Sleep(1000);
                     string groupid;
                     if (publicsupergroup) groupid = "@" + msg.Chat.Username;
                     else groupid = Convert.ToString(msg.Chat.Id);
