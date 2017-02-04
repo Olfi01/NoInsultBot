@@ -355,33 +355,42 @@ namespace ConsoleApplication1
 
         static void kickUser(Message msg)
         {
-            bool publicsupergroup = false;
-            if (msg.Chat.Username != null) publicsupergroup = true;
-
-            bool supergroup = false;
-            if (msg.Chat.Type.ToString() == "Supergroup") supergroup = true;
-
-            string append = "kickChatMember?chat_id=";
-
-            if (publicsupergroup) append += "@" + msg.Chat.Username;
-            else append += msg.Chat.Id;
-
-            append += "&user_id=" + msg.From.Id;
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-            request.GetResponse();
-
-            if (supergroup)
+            try
             {
-                append = "unbanChatMember?chat_id=";
+
+                bool publicsupergroup = false;
+                if (msg.Chat.Username != null) publicsupergroup = true;
+
+                bool supergroup = false;
+                if (msg.Chat.Type.ToString() == "Supergroup") supergroup = true;
+
+                string append = "kickChatMember?chat_id=";
+
                 if (publicsupergroup) append += "@" + msg.Chat.Username;
                 else append += msg.Chat.Id;
 
                 append += "&user_id=" + msg.From.Id;
 
-                request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
                 request.GetResponse();
 
+                if (supergroup)
+                {
+                    append = "unbanChatMember?chat_id=";
+                    if (publicsupergroup) append += "@" + msg.Chat.Username;
+                    else append += msg.Chat.Id;
+
+                    append += "&user_id=" + msg.From.Id;
+
+                    request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                    request.GetResponse();
+
+                }
+
+            }
+            catch(Exception e)
+            {
+                sendMessage("Fehler trat auf in der Funktion kickUser(msg)! Exception:\n\n" + e.Message, testgroupid);
             }
         }
 
