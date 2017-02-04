@@ -58,6 +58,7 @@ namespace ConsoleApplication1
 
         private static void handleMessage(string txt, Message msg, Update u)
         {
+            PRIVarguments = "";
             PRIVinsultadded = false;
 
             bool globalAdmin = false;
