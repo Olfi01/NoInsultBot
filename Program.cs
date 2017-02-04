@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Telegram.Bot.Types;
 using System.Collections;
 using System.Windows;
+using System.Threading;
 
 namespace ConsoleApplication1
 {
@@ -306,7 +307,9 @@ namespace ConsoleApplication1
                     {
                         if (UserInGroup(msg))
                         {
-                            kickUser(msg);//add thread here
+                            ParameterizedThreadStart sta = new ParameterizedThreadStart(kickUser);
+                            Thread t = new Thread(sta);
+                            t.Start(msg);
                             sendMessage("User `" + msg.From.FirstName + "` was automatically kicked because of this message!", msg.Chat.Id, msg, "Markdown");
 
                             lastUpdate = u.Id;
