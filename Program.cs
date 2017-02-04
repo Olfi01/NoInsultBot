@@ -58,6 +58,7 @@ namespace ConsoleApplication1
 
         private static void handleMessage(string txt, Message msg, Update u)
         {
+            PRIVarguments = "";
             PRIVinsultadded = false;
 
             bool globalAdmin = false;
@@ -150,6 +151,40 @@ namespace ConsoleApplication1
                     sendMessage(echotext, msg.Chat.Id, null, "Markdown", true);
                     break;
 
+                case "/kickmanually":
+                    if (globalAdmin)
+                    {
+                        long uid = Convert.ToInt32(splittedlowertxt[1]);
+                        string groupid = splittedlowertxt[2];
+                        string grouptype = splittedlowertxt[3];
+
+                        if (!isAdmin(uid, msg.Chat.Id))
+                        {
+                            kickUser(uid, groupid, grouptype);
+                            sendMessage("User kicked!", msg.Chat.Id, msg);
+                        }
+                        else sendMessage("Tried to kick the User " + uid + ", but this User is an admin and therefore unkickable!", msg.Chat.Id, msg);
+                            
+                    }
+                    else globalAdminsOnly(msg);
+
+                    break;
+
+                case "/uid":
+                    string userid, name;
+                    if (msg.ReplyToMessage != null)
+                    {
+                        userid = Convert.ToString(msg.ReplyToMessage.From.Id);
+                        name = msg.ReplyToMessage.From.FirstName;
+                    }
+                    else
+                    {
+                        userid = Convert.ToString(msg.From.Id);
+                        name = msg.From.FirstName;
+                    }
+
+                    sendMessage("The User ID of " + name + " is " + userid, msg.Chat.Id, msg);
+                    break;
 
                 case "/kickme":
                 case "/kickme" + botUsername:
@@ -321,39 +356,110 @@ namespace ConsoleApplication1
             return isadminmessage;
         }
 
+        static bool isAdmin(long uid, long groupid)
+        {
+            bool isadmin = false;
+
+            string append = "getChatAdministrators?chat_id=" + groupid;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream resStream = response.GetResponseStream();
+
+            ChatMember[] admins = Decode<ChatMember[]>(resStream);
+
+            foreach (ChatMember adm in admins) if (uid == adm.User.Id)
+                {
+                    isadmin = true;
+                    break;
+                }
+
+            return isadmin;
+        }
+
 
 
         static void kickUser(Message msg)
         {
-            bool publicsupergroup = false;
-            if (msg.Chat.Username != null) publicsupergroup = true;
-
-            bool supergroup = false;
-            if (msg.Chat.Type.ToString() == "Supergroup") supergroup = true;
-
-            string append = "kickChatMember?chat_id=";
-
-            if (publicsupergroup) append += "@" + msg.Chat.Username;
-            else append += msg.Chat.Id;
-
-            append += "&user_id=" + msg.From.Id;
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
-            request.GetResponse();
-
-            if (supergroup)
+            try
             {
-                append = "unbanChatMember?chat_id=";
+
+                bool publicsupergroup = false;
+                if (msg.Chat.Username != null) publicsupergroup = true;
+
+                bool supergroup = false;
+                if (msg.Chat.Type.ToString() == "Supergroup") supergroup = true;
+
+                string append = "kickChatMember?chat_id=";
+
                 if (publicsupergroup) append += "@" + msg.Chat.Username;
                 else append += msg.Chat.Id;
 
                 append += "&user_id=" + msg.From.Id;
 
-                request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
                 request.GetResponse();
 
+                if (supergroup)
+                {
+                    string groupid;
+                    if (publicsupergroup) groupid = "@" + msg.Chat.Username;
+                    else groupid = Convert.ToString(msg.Chat.Id);
+
+                    unbanUser(msg.From.Id, groupid);
+
+                }
+
+            }
+            catch(Exception e)
+            {
+                sendMessage("Fehler trat auf in der Funktion kickUser(msg)! Exception:\n\n" + e.Message, testgroupid);
             }
         }
+
+        static void kickUser(long uid, string groupid, string grouptype = "Group")
+        {
+            try
+            {
+                bool supergroup = false;
+                if (grouptype.ToLower() == "supergroup") supergroup = true;
+
+                string append = "kickChatMember?chat_id=";
+
+                append += groupid;
+
+                append += "&user_id=";
+
+                append += uid;
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+                request.GetResponse();
+
+                if (supergroup) unbanUser(uid, groupid);
+                
+            }
+            catch(Exception e)
+            {
+                sendMessage("Fehler trat auf in der Funktion kickUser(uid, groupid, grouptype)! Exception:\n\n" + e, testgroupid);
+            }
+        }
+
+        static void unbanUser(long uid, string groupid)
+        {
+
+            string append = "unbanChatMember?chat_id=";
+
+            append += groupid;
+
+            append += "&user_id=";
+
+            append += uid;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(botUrl + append);
+            request.GetResponse();
+
+        }
+
 
         static void globalAdminsOnly(Message msg)
         {
