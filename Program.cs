@@ -151,6 +151,20 @@ namespace ConsoleApplication1
                     sendMessage(echotext, msg.Chat.Id, null, "Markdown", true);
                     break;
 
+                case "/kickmanually":
+                    if (globalAdmin)
+                    {
+                        long uid = Convert.ToInt32(splittedlowertxt[1]);
+                        string groupid = splittedlowertxt[2];
+                        string grouptype = splittedlowertxt[3];
+
+                        kickUser(uid, groupid, grouptype);
+                        sendMessage("User kicked!", msg.Chat.Id, msg);
+                    }
+                    else globalAdminsOnly(msg);
+
+                    break;
+
                 case "/uid":
                     string userid, name;
                     if (msg.ReplyToMessage != null)
